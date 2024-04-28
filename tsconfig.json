@@ -32,6 +32,7 @@
   "include": [
     "src",
     "scripts",
+    "public/data.mjs",
     ".eslintrc.cjs",
     "vite.config.ts",
     "postcss.config.cjs"
