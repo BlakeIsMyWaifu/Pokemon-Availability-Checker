@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -64,7 +63,8 @@ export default async function getGameLocations(pokemonNames) {
 		'Generation VIII': {
 			'Sword': new Map(),
 			'Shield': new Map(),
-			'Expansion Pass': new Map(),
+			'Sword Expansion Pass': new Map(),
+			'Shield Expansion Pass': new Map(),
 			'Brilliant Diamond': new Map(),
 			'Shining Pearl': new Map(),
 			'Legends: Arceus': new Map()
@@ -72,8 +72,16 @@ export default async function getGameLocations(pokemonNames) {
 		'Generation IX': {
 			'Scarlet': new Map(),
 			'Violet': new Map(),
-			'The Hidden Treasure of Area Zero': new Map()
+			'Scarlet The Hidden Treasure of Area Zero': new Map(),
+			'Violet The Hidden Treasure of Area Zero': new Map()
 		}
+	}
+
+	/** @type {import('./types').UpdateDataMap} */
+	function updateDataMap(generation, gameName, pokemonName, method) {
+		/** @type {Map<string, string>} */
+		const map = data[generation][gameName]
+		map.set(pokemonName, method)
 	}
 
 	/** @type {Set<string>} */
@@ -111,19 +119,28 @@ export default async function getGameLocations(pokemonNames) {
 				const gamesText = games.map(node => node.childNodes[0].textContent.trim())
 
 				gamesText.forEach(gameText => {
-					// TODO split region / DLC versions
-					let [gameName] = gameText.split(' (')
-					if (gameName.includes('Expansion Pass')) {
-						gameName = 'Expansion Pass'
-					}
+					if (gameText.includes('Japan')) return
 
-					/** @type {Map<string, string>} */
-					const map = data[generationNumber][gameName]
-					map.set(pokemonName, methodText)
+					if (gameText === 'Expansion Pass') {
+						updateDataMap(generationNumber, 'Sword Expansion Pass', pokemonName, methodText)
+						updateDataMap(generationNumber, 'Shield Expansion Pass', pokemonName, methodText)
+					} else if (gameText.includes('The Hidden Treasure of Area Zero')) {
+						if (gameText.includes('Scarlet')) {
+							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonName, methodText)
+						} else if (gameText.includes('Violet')) {
+							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonName, methodText)
+						} else {
+							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonName, methodText)
+							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonName, methodText)
+						}
+					} else {
+						updateDataMap(generationNumber, gameText, pokemonName, methodText)
+					}
 				})
 			})
 		})
 
+		// eslint-disable-next-line no-undef
 		if (process.env.LOG === 'true') {
 			console.log(`✅ ${pokemonName}`)
 		}
