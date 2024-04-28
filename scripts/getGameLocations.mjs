@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -5,15 +6,15 @@
 
 import { JSDOM } from 'jsdom'
 
-/** @type {import('./types').GetData} */
-export default async function getData(pokemonNames) {
+/** @type {import('./types').GetGameLocations} */
+export default async function getGameLocations(pokemonNames) {
 
 	/** @type {import('./types').Data} */
 	const data = {
 		'Generation I': {
 			'Red': new Map(),
 			'Blue': new Map(),
-			'Blue (Japan)': new Map(),
+			'Green': new Map(),
 			'Yellow': new Map()
 		},
 		'Generation II': {
@@ -36,13 +37,15 @@ export default async function getData(pokemonNames) {
 			'Platinum': new Map(),
 			'HeartGold': new Map(),
 			'SoulSilver': new Map(),
-			'Pal Park': new Map()
+			'Pal Park': new Map(),
+			'Pokéwalker': new Map()
 		},
 		'Generation V': {
 			'Black': new Map(),
 			'White': new Map(),
 			'Black 2': new Map(),
-			'White 2': new Map()
+			'White 2': new Map(),
+			'Dream World': new Map()
 		},
 		'Generation VI': {
 			'X': new Map(),
@@ -73,9 +76,12 @@ export default async function getData(pokemonNames) {
 		}
 	}
 
+	/** @type {Set<string>} */
+	const failedPokemon = new Set()
+
 	/** @type {import('./types').AddPokemonData} */
 	async function addPokemonData(pokemonName) {
-		const raw = await fetch(`https://bulbapedia.bulbagarden.net/wiki/${pokemonName}_(Pokemon)`)
+		const raw = await fetch(`https://bulbapedia.bulbagarden.net/wiki/${pokemonName}_(Pokémon)`)
 			.then(response => response.text())
 		const { document } = new JSDOM(raw).window
 
@@ -85,6 +91,8 @@ export default async function getData(pokemonNames) {
 		const tr = [...generationParent].filter(node => node.nodeName == 'TR')
 
 		tr.forEach(generation => {
+			if (generation.childNodes[1].nodeName === 'TH') return
+
 			const generationTbody = generation.childNodes[1].childNodes[1].childNodes[1]
 
 			const dataTbody = generationTbody.childNodes[2].childNodes[1].childNodes[1].childNodes[1]
@@ -103,16 +111,35 @@ export default async function getData(pokemonNames) {
 				const gamesText = games.map(node => node.childNodes[0].textContent.trim())
 
 				gamesText.forEach(gameText => {
+					// TODO split region / DLC versions
+					let [gameName] = gameText.split(' (')
+					if (gameName.includes('Expansion Pass')) {
+						gameName = 'Expansion Pass'
+					}
+
 					/** @type {Map<string, string>} */
-					const map = data[generationNumber][gameText]
+					const map = data[generationNumber][gameName]
 					map.set(pokemonName, methodText)
 				})
 			})
 		})
+
+		if (process.env.LOG === 'true') {
+			console.log(`✅ ${pokemonName}`)
+		}
 	}
 
 	for (const pokemonName of pokemonNames) {
-		await addPokemonData(pokemonName)
+		await addPokemonData(pokemonName).catch(_error => {
+			console.error(`❌ ${pokemonName}`)
+			failedPokemon.add(pokemonName)
+		})
+	}
+
+	for (const pokemonName of Array.from(failedPokemon)) {
+		await addPokemonData(pokemonName).catch(error => {
+			console.error(`❌ ${pokemonName}`, error)
+		})
 	}
 
 	return data
