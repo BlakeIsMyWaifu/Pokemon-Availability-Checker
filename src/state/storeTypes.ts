@@ -15,3 +15,6 @@ export type Slice<
 export const createActionName =
 	<T extends string>(storeName: string) =>
 	(actionName: T): [false, string] => [false, `${storeName}/${actionName}`]
+
+const projectName = 'pokemon-availability-checker'
+export const persistStoreName = (storeName: string) => `${projectName}-${storeName}`

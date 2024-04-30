@@ -1,20 +1,4 @@
-export type GetPokemonNames = (limit?: number, offset?: number) => Promise<string[]>
-export type PokemonListEndpoint = {
-	count: number
-	next: string
-	previous: string
-	results: results[]
-}
-type results = {
-	name: string
-	url: string
-}
-
-export type GetGameLocations = (pokemonNames: string[]) => Promise<Data>
-export type AddPokemonData = (pokemonName: string) => Promise<void>
-export type UpdateDataMap = (generation: string, gameName: string, pokemonName: string, method: string) => void
-
-type GenI = 'Red' | 'Blue' | 'Green' | 'Yellow'
+type GenI = 'Red' | 'Blue' | 'Yellow' // Green
 type GenII = 'Gold' | 'Silver' | 'Crystal'
 type GenIII = 'Ruby' | 'Sapphire' | 'Emerald' | 'FireRed' | 'LeafGreen' | 'Colosseum' | 'XD'
 type GenIV = 'Diamond' | 'Pearl' | 'Platinum' | 'HeartGold' | 'SoulSilver' | 'Pal Park' | 'Pokéwalker'
@@ -36,7 +20,8 @@ type GenIX =
 	| 'Violet The Hidden Treasure of Area Zero'
 export type GameName = GenI | GenII | GenIII | GenIV | GenV | GenVI | GenVII | GenVIII | GenIX
 
-export type Generations = {
+export type Generation = keyof GenerationGames
+export type GenerationGames = {
 	'Generation I': GenI
 	'Generation II': GenII
 	'Generation III': GenIII
@@ -47,10 +32,3 @@ export type Generations = {
 	'Generation VIII': GenVIII
 	'Generation IX': GenIX
 }
-
-export type Data = {
-	[key in keyof Generations]: Record<Generations[key], Map<string, string>>
-}
-
-export type SaveData = (data: Data) => Promise<void>
-export type MapReplacer<T> = (_key: string, value: T) => unknown[] | T

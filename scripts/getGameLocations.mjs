@@ -5,15 +5,14 @@
 
 import { JSDOM } from 'jsdom'
 
-/** @type {import('./types').GetGameLocations} */
+/** @type {import('./scripts').GetGameLocations} */
 export default async function getGameLocations(pokemonNames) {
 
-	/** @type {import('./types').Data} */
+	/** @type {import('./scripts').Data} */
 	const data = {
 		'Generation I': {
 			'Red': new Map(),
 			'Blue': new Map(),
-			'Green': new Map(),
 			'Yellow': new Map()
 		},
 		'Generation II': {
@@ -77,7 +76,7 @@ export default async function getGameLocations(pokemonNames) {
 		}
 	}
 
-	/** @type {import('./types').UpdateDataMap} */
+	/** @type {import('./scripts').UpdateDataMap} */
 	function updateDataMap(generation, gameName, pokemonName, method) {
 		/** @type {Map<string, string>} */
 		const map = data[generation][gameName]
@@ -87,7 +86,7 @@ export default async function getGameLocations(pokemonNames) {
 	/** @type {Set<string>} */
 	const failedPokemon = new Set()
 
-	/** @type {import('./types').AddPokemonData} */
+	/** @type {import('./scripts').AddPokemonData} */
 	async function addPokemonData(pokemonName) {
 		const raw = await fetch(`https://bulbapedia.bulbagarden.net/wiki/${pokemonName}_(Pokémon)`)
 			.then(response => response.text())
@@ -115,7 +114,7 @@ export default async function getGameLocations(pokemonNames) {
 				/** @type {string} */
 				const methodText = method.childNodes[1].childNodes[1].childNodes[0].childNodes[1].textContent.slice(0, -1)
 
-				/** @type {import('./types').Games[]} */
+				/** @type {import('../src/types/pokemon').GameName[]} */
 				const gamesText = games.map(node => node.childNodes[0].textContent.trim())
 
 				gamesText.forEach(gameText => {

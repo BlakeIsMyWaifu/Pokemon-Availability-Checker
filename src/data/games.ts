@@ -1,7 +1,7 @@
-import { type Generations } from 'scripts/types'
+import { type Generation, type GenerationGames } from '~/types/generationTypes'
 
 type GameBoxArt = {
-	[key in keyof Generations]: Generations[key][]
+	[key in Generation]: GenerationGames[key][]
 }
 
 export const gameBoxArt = {

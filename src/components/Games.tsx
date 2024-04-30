@@ -1,13 +1,14 @@
 import { Card, Group, HoverCard, Image, Space, Stack, Text, Title } from '@mantine/core'
-import { type GameName, type Generations } from 'scripts/types'
 
 import { gameBoxArt } from '~/data/games'
 import { useGamesStore } from '~/state/useGamesStore'
-import { typedObject } from '~/utils/typedObject'
+import { type GameName, type Generation, type GenerationGames } from '~/types/generationTypes'
+import { typedObject } from '~/types/typedObject'
 
 export default function Games() {
 	return (
 		<Stack>
+			<Title order={2}>Games</Title>
 			{typedObject.entries(gameBoxArt).map(([generation, games]) => {
 				return <Generation key={generation} title={generation} games={games} />
 			})}
@@ -16,12 +17,12 @@ export default function Games() {
 }
 
 type GenerationProps = {
-	title: keyof Generations
-	games: Generations[keyof Generations][]
+	title: Generation
+	games: GenerationGames[Generation][]
 }
 
 function Generation({ title, games }: GenerationProps) {
-	const gamesToggled: Partial<Record<GameName, boolean>> = useGamesStore(state => state[title])
+	const gamesToggled: Partial<Record<GameName, boolean>> = useGamesStore(state => state.generations[title])
 	const toggleGame = useGamesStore(state => state.toggleGame)
 
 	return (

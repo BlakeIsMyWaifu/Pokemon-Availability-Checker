@@ -1,7 +1,7 @@
-/** @type {import('./types').GetPokemonNames} */
+/** @type {import('./scripts').GetPokemonNames} */
 export default async function getPokemonNames(limit = 20, offset = 0) {
 
-	/** @type {import('./types').PokemonListEndpoint} */
+	/** @type {import('./scripts').PokemonListEndpoint} */
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	const data = await fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${limit}`)
 		.then(response => response.json())
