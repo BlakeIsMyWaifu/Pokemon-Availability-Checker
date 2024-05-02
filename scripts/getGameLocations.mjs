@@ -93,7 +93,14 @@ export default async function getGameLocations(pokemonNames) {
 		const { document } = new JSDOM(raw).window
 
 		const gameLocationHeader = document.querySelector('#Game_locations')
-		const gameLocationTable = gameLocationHeader.parentNode.nextSibling.nextSibling
+		let gameLocationTable = gameLocationHeader.parentNode.nextSibling.nextSibling
+		if (gameLocationTable.nodeName !== 'TABLE') {
+			gameLocationTable = gameLocationTable.nextSibling.nextSibling
+		}
+		if (pokemonName === 'Magearna') {
+			gameLocationTable = gameLocationTable.nextSibling.nextSibling
+		}
+
 		const generationParent = gameLocationTable.childNodes[1].childNodes
 		const tr = [...generationParent].filter(node => node.nodeName == 'TR')
 
@@ -113,8 +120,9 @@ export default async function getGameLocations(pokemonNames) {
 
 				/** @type {string} */
 				const methodText = method.childNodes[1].childNodes[1].childNodes[0].childNodes[1].textContent.slice(0, -1)
+				if (methodText === 'Unobtainable') return
 
-				/** @type {import('../src/types/pokemon').GameName[]} */
+				/** @type {import('../src/types/generationTypes').GameName[]} */
 				const gamesText = games.map(node => node.childNodes[0].textContent.trim())
 
 				gamesText.forEach(gameText => {
@@ -145,7 +153,7 @@ export default async function getGameLocations(pokemonNames) {
 		}
 	}
 
-	for (const pokemonName of pokemonNames) {
+	for (const pokemonName of Array.from(pokemonNames)) {
 		await addPokemonData(pokemonName).catch(_error => {
 			console.error(`❌ ${pokemonName}`)
 			failedPokemon.add(pokemonName)
@@ -154,7 +162,8 @@ export default async function getGameLocations(pokemonNames) {
 
 	for (const pokemonName of Array.from(failedPokemon)) {
 		await addPokemonData(pokemonName).catch(error => {
-			console.error(`❌ ${pokemonName}`, error)
+			console.error(`❌ ${pokemonName}`)
+			console.error(error)
 		})
 	}
 

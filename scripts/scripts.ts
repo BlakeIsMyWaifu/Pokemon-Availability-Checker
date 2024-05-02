@@ -1,7 +1,9 @@
 import { type Generation, type GenerationGames } from '~/types/generationTypes'
 
-export type GetPokemonNames = (limit?: number, offset?: number) => Promise<string[]>
-export type PokemonListEndpoint = {
+export type GetPokemonNames = (limit?: number, offset?: number) => Promise<Set<string>>
+export type FetchPokemon = (limit: number, offset: number) => Promise<PokemonListEndpoint>
+export type Capitalise = (string: string) => string
+type PokemonListEndpoint = {
 	count: number
 	next: string
 	previous: string
@@ -15,7 +17,7 @@ type results = {
 type GameLocations = {
 	[key in Generation]: Record<GenerationGames[key], Map<string, string>>
 }
-export type GetGameLocations = (pokemonNames: string[]) => Promise<GameLocations>
+export type GetGameLocations = (pokemonNames: Set<string>) => Promise<GameLocations>
 export type AddPokemonData = (pokemonName: string) => Promise<void>
 export type UpdateDataMap = (generation: string, gameName: string, pokemonName: string, method: string) => void
 

@@ -2,7 +2,7 @@ import { Card, Group, HoverCard, Image, Space, Stack, Text, Title } from '@manti
 
 import { gameBoxArt } from '~/data/games'
 import { useGamesStore } from '~/state/useGamesStore'
-import { type GameName, type Generation, type GenerationGames } from '~/types/generationTypes'
+import { type GameName, type Generation } from '~/types/generationTypes'
 import { typedObject } from '~/types/typedObject'
 
 export default function Games() {
@@ -18,7 +18,7 @@ export default function Games() {
 
 type GenerationProps = {
 	title: Generation
-	games: GenerationGames[Generation][]
+	games: GameName[]
 }
 
 function Generation({ title, games }: GenerationProps) {

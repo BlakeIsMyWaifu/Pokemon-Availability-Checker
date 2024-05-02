@@ -18,7 +18,7 @@ type GenIX =
 	| 'Violet'
 	| 'Scarlet The Hidden Treasure of Area Zero'
 	| 'Violet The Hidden Treasure of Area Zero'
-export type GameName = GenI | GenII | GenIII | GenIV | GenV | GenVI | GenVII | GenVIII | GenIX
+export type GameName = GenerationGames[Generation]
 
 export type Generation = keyof GenerationGames
 export type GenerationGames = {
