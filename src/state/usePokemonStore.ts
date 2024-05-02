@@ -5,22 +5,33 @@ import { getGenerationData } from '~/data/generationData'
 import POKEMON from '~/generated/POKEMON.json'
 import { nonNullable } from '~/types/filter'
 import { type GameName, type Generation } from '~/types/generationTypes'
+import { typedObject } from '~/types/typedObject'
 
 import { createActionName, type DevTools, type Persist, persistStoreName, type Slice } from './storeTypes'
+import { useGamesStore } from './useGamesStore'
 
+export type Filter = keyof PokemonStore['filters']
 type PokemonState = {
-	available: Record<string, Set<GameName>>
+	available: Record<string, GameName[]>
 	unavailable: string[]
+	filters: {
+		trade: boolean
+	}
 }
 
 const pokemonState: PokemonState = {
 	available: {},
-	unavailable: POKEMON
+	unavailable: POKEMON,
+	filters: {
+		trade: false
+	}
 }
 
 type PokemonAction = {
 	addGame: (generation: Generation, game: GameName) => void
 	removeGame: (game: GameName) => void
+	toggleFilter: (filter: Filter) => void
+	refreshGames: () => void
 }
 
 const actionName = createActionName<keyof PokemonAction>('pokemon')
@@ -28,48 +39,82 @@ const actionName = createActionName<keyof PokemonAction>('pokemon')
 const createPokemonAction: Slice<PokemonStore, PokemonAction, [DevTools, Persist]> = (set, get) => ({
 	addGame: (generation, game) => {
 		const gameData = getGenerationData(generation, game)
-		const pokemonList = Array.from(gameData.keys())
 
 		const { available } = get()
-		pokemonList.forEach(pokemonName => {
-			if (available[pokemonName]) {
-				available[pokemonName].add(game)
-			} else {
-				available[pokemonName] = new Set<GameName>([game])
+		for (const [pokemonName, method] of gameData) {
+			if (!get().filters.trade && method.startsWith('Trade')) {
+				continue
 			}
-		})
 
-		const unavailable = get().unavailable.filter(pokemonName => !pokemonList.includes(pokemonName))
+			if (available[pokemonName]) {
+				available[pokemonName].push(game)
+			} else {
+				available[pokemonName] = [game]
+			}
+		}
 
-		set(
-			{
-				available,
-				unavailable
-			},
-			...actionName('addGame')
-		)
+		const unavailable = get().unavailable.filter(pokemonName => !Object.keys(available).includes(pokemonName))
+
+		set({ available, unavailable }, ...actionName('addGame'))
 	},
 	removeGame: game => {
 		const addToUnavailable: string[] = []
 
 		const available = Object.fromEntries(
 			Object.entries(get().available)
-				.map<[string, Set<GameName>] | null>(([pokemonName, games]) => {
-					if (games.size === 1) {
+				.map<[string, GameName[]] | null>(([pokemonName, games]) => {
+					if (games.length === 1 && games[0] === game) {
 						addToUnavailable.push(pokemonName)
 						return null
 					} else {
-						games.delete(game)
-						return [pokemonName, games]
+						return [pokemonName, games.filter(g => game !== g)]
 					}
 				})
 				.filter(nonNullable)
 		)
 
-		set(state => ({
-			available,
-			unavailable: state.unavailable.concat(addToUnavailable)
-		}))
+		set(
+			state => ({
+				available,
+				unavailable: state.unavailable.concat(addToUnavailable)
+			}),
+			...actionName('removeGame')
+		)
+	},
+	toggleFilter: filter => {
+		set(
+			state => ({
+				filters: {
+					...state.filters,
+					[filter]: !state.filters[filter]
+				}
+			}),
+			...actionName('toggleFilter')
+		)
+
+		get().refreshGames()
+	},
+	refreshGames: () => {
+		set(
+			{
+				available: {},
+				unavailable: POKEMON
+			},
+			...actionName('refreshGames')
+		)
+
+		const { generations } = useGamesStore.getState()
+		const activeGames = typedObject
+			.entries(generations)
+			.flatMap(([generation, games]) => {
+				const gamesList = typedObject.entries(games).filter(([_game, active]) => active)
+				if (!gamesList.length) return null
+				return gamesList.map<[Generation, GameName]>(([game, _active]) => [generation, game])
+			})
+			.filter(nonNullable)
+
+		const { addGame } = usePokemonStore.getState()
+		activeGames.forEach(([generation, game]) => addGame(generation, game))
 	}
 })
 

@@ -87,7 +87,9 @@ export default async function getGameLocations(pokemonNames) {
 	const failedPokemon = new Set()
 
 	/** @type {import('./scripts').AddPokemonData} */
-	async function addPokemonData(pokemonName) {
+	async function addPokemonData(pokemonNameWithId) {
+		const pokemonName = pokemonNameWithId.split('#')[1]
+
 		const raw = await fetch(`https://bulbapedia.bulbagarden.net/wiki/${pokemonName}_(Pokémon)`)
 			.then(response => response.text())
 		const { document } = new JSDOM(raw).window
@@ -129,19 +131,19 @@ export default async function getGameLocations(pokemonNames) {
 					if (gameText.includes('Japan')) return
 
 					if (gameText === 'Expansion Pass') {
-						updateDataMap(generationNumber, 'Sword Expansion Pass', pokemonName, methodText)
-						updateDataMap(generationNumber, 'Shield Expansion Pass', pokemonName, methodText)
+						updateDataMap(generationNumber, 'Sword Expansion Pass', pokemonNameWithId, methodText)
+						updateDataMap(generationNumber, 'Shield Expansion Pass', pokemonNameWithId, methodText)
 					} else if (gameText.includes('The Hidden Treasure of Area Zero')) {
 						if (gameText.includes('Scarlet')) {
-							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonName, methodText)
+							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonNameWithId, methodText)
 						} else if (gameText.includes('Violet')) {
-							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonName, methodText)
+							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonNameWithId, methodText)
 						} else {
-							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonName, methodText)
-							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonName, methodText)
+							updateDataMap(generationNumber, 'Scarlet The Hidden Treasure of Area Zero', pokemonNameWithId, methodText)
+							updateDataMap(generationNumber, 'Violet The Hidden Treasure of Area Zero', pokemonNameWithId, methodText)
 						}
 					} else {
-						updateDataMap(generationNumber, gameText, pokemonName, methodText)
+						updateDataMap(generationNumber, gameText, pokemonNameWithId, methodText)
 					}
 				})
 			})

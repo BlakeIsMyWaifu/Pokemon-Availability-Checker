@@ -56,10 +56,11 @@ export default async function getPokemonNames(limit = -1, offset = 0) {
 	/** @type {Set<string>} */
 	const out = new Set()
 
-	for (const result of data.results) {
+	for (let i = 0; i < data.results.length; i++) {
+		const result = data.results[i];
 		if (result.name === 'deoxys-attack') break
 		const name = nameReplace.get(result.name) ?? capitalise(result.name.split('-')[0])
-		out.add(name)
+		out.add(`${i + 1}#${name}`)
 	}
 
 	return out
