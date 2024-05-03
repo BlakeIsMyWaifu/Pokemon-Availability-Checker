@@ -1,7 +1,7 @@
 {
   "name": "pokemon-availability-checker",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
@@ -10,9 +10,8 @@
     "dev": "run-p dev:*",
     "dev:1": "vite",
     "dev:2": "start http://localhost:5173",
-    "build": "run-s build:*",
-    "build:1": "node scripts/generateData.mjs",
-    "build:2": "tsc && vite build",
+    "build": "tsc && vite build",
+    "generate-data": "node scripts/generateData.mjs",
     "lint": "run-s lint:*",
     "lint:1-eslint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:2-typescript": "tsc --project tsconfig.json --noEmit",
