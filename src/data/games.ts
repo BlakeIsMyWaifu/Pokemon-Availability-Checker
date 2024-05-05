@@ -4,7 +4,7 @@ type GameBoxArt = {
 	[key in Generation]: GenerationGames[key][]
 }
 
-export const gameBoxArt = {
+export const generationGames = {
 	'Generation IX': [
 		'Scarlet',
 		'Violet',

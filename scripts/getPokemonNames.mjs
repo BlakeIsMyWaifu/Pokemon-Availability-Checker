@@ -17,6 +17,7 @@ export default async function getPokemonNames(limit = -1, offset = 0) {
 		['farfetchd', "Farfetch'd"],
 		['ho-oh', 'Ho-Oh'],
 		['mime-jr', 'Mime_Jr.'],
+		['porygon-z', 'Porygon-Z'],
 		['type-null', 'Type:_Null'],
 		['jangmo-o', 'Jangmo-o'],
 		['hakamo-o', 'Hakamo-o'],

@@ -10,12 +10,13 @@ import { typedObject } from '~/types/typedObject'
 import { createActionName, type DevTools, type Persist, persistStoreName, type Slice } from './storeTypes'
 import { useGamesStore } from './useGamesStore'
 
-export type Filter = keyof PokemonStore['filters']
+export type BasicFilter = 'trade'
 type PokemonState = {
 	available: Record<string, GameName[]>
 	unavailable: string[]
 	filters: {
 		trade: boolean
+		generation: Record<Generation, boolean>
 	}
 }
 
@@ -23,14 +24,26 @@ const pokemonState: PokemonState = {
 	available: {},
 	unavailable: POKEMON,
 	filters: {
-		trade: false
+		trade: false,
+		generation: {
+			'Generation I': true,
+			'Generation II': true,
+			'Generation III': true,
+			'Generation IV': true,
+			'Generation V': true,
+			'Generation VI': true,
+			'Generation VII': true,
+			'Generation VIII': true,
+			'Generation IX': true
+		}
 	}
 }
 
 type PokemonAction = {
 	addGame: (generation: Generation, game: GameName) => void
 	removeGame: (game: GameName) => void
-	toggleFilter: (filter: Filter) => void
+	toggleFilter: (filter: BasicFilter) => void
+	toggleGenerationFilter: (generation: Generation) => void
 	refreshGames: () => void
 }
 
@@ -93,6 +106,20 @@ const createPokemonAction: Slice<PokemonStore, PokemonAction, [DevTools, Persist
 		)
 
 		get().refreshGames()
+	},
+	toggleGenerationFilter: generation => {
+		set(
+			state => ({
+				filters: {
+					...state.filters,
+					generation: {
+						...state.filters.generation,
+						[generation]: !state.filters.generation[generation]
+					}
+				}
+			}),
+			...actionName('toggleGenerationFilter')
+		)
 	},
 	refreshGames: () => {
 		set(

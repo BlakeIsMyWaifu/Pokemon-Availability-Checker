@@ -1,6 +1,6 @@
 import { Card, Group, HoverCard, Image, Space, Stack, Text, Title } from '@mantine/core'
 
-import { gameBoxArt } from '~/data/games'
+import { generationGames } from '~/data/games'
 import { useGamesStore } from '~/state/useGamesStore'
 import { type GameName, type Generation } from '~/types/generationTypes'
 import { typedObject } from '~/types/typedObject'
@@ -9,7 +9,7 @@ export default function Games() {
 	return (
 		<Stack>
 			<Title order={2}>Games</Title>
-			{typedObject.entries(gameBoxArt).map(([generation, games]) => {
+			{typedObject.entries(generationGames).map(([generation, games]) => {
 				return <Generation key={generation} title={generation} games={games} />
 			})}
 		</Stack>
